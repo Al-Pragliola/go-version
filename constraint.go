@@ -46,6 +46,7 @@ func init() {
 		">=": {op: greaterThanEqual, f: constraintGreaterThanEqual},
 		"<=": {op: lessThanEqual, f: constraintLessThanEqual},
 		"~>": {op: pessimistic, f: constraintPessimistic},
+		"*":  {op: all, f: constraintAll},
 	}
 
 	ops := make([]string, 0, len(constraintOperators))
@@ -63,6 +64,17 @@ func init() {
 // constraint string. The string must be a comma-separated list of
 // constraints.
 func NewConstraint(v string) (Constraints, error) {
+	if v == "*" {
+		cop := constraintOperators["*"]
+
+		return Constraints{&Constraint{
+			f:        cop.f,
+			op:       cop.op,
+			check:    nil,
+			original: v,
+		}}, nil
+	}
+
 	vs := strings.Split(v, ",")
 	result := make([]*Constraint, len(vs))
 	for i, single := range vs {
@@ -74,7 +86,7 @@ func NewConstraint(v string) (Constraints, error) {
 		result[i] = c
 	}
 
-	return Constraints(result), nil
+	return result, nil
 }
 
 // MustConstraints is a helper that wraps a call to a function
@@ -228,6 +240,7 @@ const (
 	greaterThanEqual operator = '≥'
 	lessThanEqual    operator = '≤'
 	pessimistic      operator = '~'
+	all              operator = '*'
 )
 
 func constraintEqual(v, c *Version) bool {
@@ -292,5 +305,9 @@ func constraintPessimistic(v, c *Version) bool {
 	}
 
 	// If nothing has rejected the version by now, it's valid
+	return true
+}
+
+func constraintAll(v, c *Version) bool {
 	return true
 }
