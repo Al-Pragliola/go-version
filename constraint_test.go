@@ -17,6 +17,7 @@ func TestNewConstraint(t *testing.T) {
 		{"1.0", 1, false},
 		{">= 1.x", 0, true},
 		{">= 1.2, < 1.0", 2, false},
+		{"*", 1, false},
 
 		// Out of bounds
 		{"11387778780781445675529500000000000000000", 0, true},
@@ -78,6 +79,7 @@ func TestConstraintCheck(t *testing.T) {
 		{">= 2.1.0-a", "2.1.1-beta", false},
 		{">= 2.1.0-a", "2.1.0", true},
 		{"<= 2.1.0-a", "2.0.0", true},
+		{"*", "2.2.0-alpha", true},
 	}
 
 	for _, tc := range cases {
